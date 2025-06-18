@@ -1,6 +1,8 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom';
 import LoginPage from './pages/login/LoginPage';
 import DashboardPage from './pages/dashboard/DashboardPage';
+import BlogPage from './pages/blogs/BlogPage';
+import MainLayout from './pages/MainLayout';
 
 export const router = createBrowserRouter([
     {
@@ -12,28 +14,26 @@ export const router = createBrowserRouter([
         element: <LoginPage />
     },
     {
-        path: '/dashboard',
-        element: <DashboardPage />
-    },
-    {
-        path: '/blogs',
-        element: <DashboardPage /> // Replace with BlogsPage when created
-    },
-    {
-        path: '/highlights',
-        element: <DashboardPage /> // Replace with HighlightsPage when created
-    },
-    {
-        path: '/study-materials',
-        element: <DashboardPage /> // Replace with StudyMaterialsPage when created
-    },
-    {
-        path: '/users',
-        element: <DashboardPage /> // Replace with UsersPage when created
-    },
-    {
-        path: '/settings',
-        element: <DashboardPage /> // Replace with SettingsPage when created
+        path: '/',
+        element: <MainLayout />,
+        children: [
+            {
+                path: 'dashboard',
+                element: <DashboardPage />
+            },
+            {
+                path: 'blogs',
+                element: <BlogPage />
+            },
+            {
+                path: 'highlights',
+                element: <DashboardPage /> // Replace with HighlightsPage when created
+            },
+            {
+                path: 'study-materials',
+                element: <DashboardPage /> // Replace with StudyMaterialsPage when created
+            },
+        ]
     },
     {
         path: '*',
