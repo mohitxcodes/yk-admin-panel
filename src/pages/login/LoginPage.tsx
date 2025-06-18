@@ -1,8 +1,10 @@
 import { motion } from 'framer-motion';
 import { FaEnvelope, FaLock, FaGoogle, FaGithub, FaLinkedin } from 'react-icons/fa';
 import { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 
 function LoginPage() {
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         email: '',
         password: '',
@@ -13,6 +15,8 @@ function LoginPage() {
         e.preventDefault();
         // Handle login logic here
         console.log('Login attempt:', formData);
+        // For demo purposes, navigate to dashboard
+        navigate('/dashboard');
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -118,6 +122,23 @@ function LoginPage() {
                                 </div>
                             </div>
 
+                            {/* Remember Me & Forgot Password */}
+                            <div className="flex items-center justify-between">
+                                <label className="flex items-center gap-2 text-sm text-gray-400">
+                                    <input
+                                        type="checkbox"
+                                        name="rememberMe"
+                                        checked={formData.rememberMe}
+                                        onChange={handleChange}
+                                        className="rounded border-gray-700 bg-gray-800/50 text-gray-600 focus:ring-gray-600/20"
+                                    />
+                                    Remember me
+                                </label>
+                                <Link to="/forgot-password" className="text-sm text-gray-400 hover:text-white transition-colors">
+                                    Forgot password?
+                                </Link>
+                            </div>
+
                             {/* Login Button */}
                             <motion.button
                                 whileHover={{ scale: 1.02 }}
@@ -128,8 +149,43 @@ function LoginPage() {
                                 Sign In
                             </motion.button>
 
+                            {/* Divider */}
+                            <div className="relative">
+                                <div className="absolute inset-0 flex items-center">
+                                    <div className="w-full border-t border-gray-800"></div>
+                                </div>
+                                <div className="relative flex justify-center text-sm">
+                                    <span className="px-2 bg-gray-900/30 text-gray-400">Or continue with</span>
+                                </div>
+                            </div>
+
+                            {/* Social Login Buttons */}
+                            <div className="grid grid-cols-3 gap-4">
+                                {[
+                                    { icon: <FaGoogle />, label: "Google" },
+                                    { icon: <FaGithub />, label: "GitHub" },
+                                    { icon: <FaLinkedin />, label: "LinkedIn" }
+                                ].map((social) => (
+                                    <motion.button
+                                        key={social.label}
+                                        whileHover={{ scale: 1.02 }}
+                                        whileTap={{ scale: 0.98 }}
+                                        className="flex items-center justify-center gap-2 py-2.5 px-4 bg-gray-800/50 border border-gray-700 rounded-xl hover:border-gray-600 transition-all"
+                                    >
+                                        {social.icon}
+                                        <span className="text-sm">{social.label}</span>
+                                    </motion.button>
+                                ))}
+                            </div>
                         </form>
 
+                        {/* Sign Up Link */}
+                        <div className="mt-6 text-center text-sm text-gray-400">
+                            Don't have an account?{' '}
+                            <Link to="/signup" className="text-white hover:text-gray-300 transition-colors">
+                                Sign up
+                            </Link>
+                        </div>
                     </motion.div>
                 </div>
             </div>
