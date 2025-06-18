@@ -1,26 +1,37 @@
 import { motion } from 'framer-motion';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
     FaHome,
-    FaChartBar,
-    FaUsers,
-    FaCog,
     FaSignOutAlt,
     FaBars,
-    FaTimes
+    FaTimes,
+    FaBook,
+    FaNewspaper,
+    FaLightbulb,
+    FaUserCircle
 } from 'react-icons/fa';
 import { useState } from 'react';
 
 const menuItems = [
     { icon: <FaHome />, label: 'Dashboard', path: '/dashboard' },
-    { icon: <FaChartBar />, label: 'Analytics', path: '/analytics' },
-    { icon: <FaUsers />, label: 'Users', path: '/users' },
-    { icon: <FaCog />, label: 'Settings', path: '/settings' },
+    { icon: <FaNewspaper />, label: 'Blogs', path: '/blogs' },
+    { icon: <FaLightbulb />, label: 'Highlights', path: '/highlights' },
+    { icon: <FaBook />, label: 'Study Materials', path: '/study-materials' },
 ];
 
 function Sidebar() {
     const [isCollapsed, setIsCollapsed] = useState(false);
     const location = useLocation();
+    const navigate = useNavigate();
+
+    const user = {
+        email: 'admin@example.com',
+        avatar: null // Set to null to use default avatar
+    };
+
+    const handleLogout = () => {
+        navigate('/login');
+    };
 
     return (
         <motion.div
@@ -52,8 +63,8 @@ function Sidebar() {
                         key={item.path}
                         to={item.path}
                         className={`flex items-center gap-4 px-4 py-3 rounded-xl mb-2 transition-all ${location.pathname === item.path
-                                ? 'bg-white/10 text-white'
-                                : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                            ? 'bg-white/10 text-white'
+                            : 'text-gray-400 hover:bg-white/5 hover:text-white'
                             }`}
                     >
                         <span className="text-lg">{item.icon}</span>
@@ -62,15 +73,37 @@ function Sidebar() {
                 ))}
             </nav>
 
-            {/* Logout Button */}
-            <div className="absolute bottom-6 left-0 right-0 px-4">
-                <button
-                    className={`flex items-center gap-4 px-4 py-3 rounded-xl w-full text-gray-400 hover:bg-white/5 hover:text-white transition-all ${isCollapsed ? 'justify-center' : ''
-                        }`}
-                >
-                    <FaSignOutAlt className="text-lg" />
-                    {!isCollapsed && <span>Logout</span>}
-                </button>
+            {/* User Profile Section */}
+            <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-800">
+                <div className={`flex items-center gap-3 ${isCollapsed ? 'justify-center' : ''}`}>
+                    {/* Avatar */}
+                    <div className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center overflow-hidden">
+                        {user.avatar ? (
+                            <img src={user.avatar} alt="User avatar" className="w-full h-full object-cover" />
+                        ) : (
+                            <FaUserCircle className="w-8 h-8 text-gray-400" />
+                        )}
+                    </div>
+
+                    {/* User Info */}
+                    {!isCollapsed && (
+                        <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-white truncate">
+                                {user.email}
+                            </p>
+                        </div>
+                    )}
+
+                    {/* Logout Button */}
+                    <button
+                        onClick={handleLogout}
+                        className={`flex items-center gap-2 px-3 py-2 rounded-lg text-gray-400 hover:bg-white/5 hover:text-white transition-all ${isCollapsed ? 'justify-center' : ''
+                            }`}
+                    >
+                        <FaSignOutAlt className="text-lg" />
+                        {!isCollapsed && <span className="text-sm">Logout</span>}
+                    </button>
+                </div>
             </div>
         </motion.div>
     );

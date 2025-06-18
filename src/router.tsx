@@ -15,4 +15,28 @@ export const router = createBrowserRouter([
         path: '/dashboard',
         element: <DashboardPage />
     },
+    {
+        path: '/blogs',
+        element: <DashboardPage /> // Replace with BlogsPage when created
+    },
+    {
+        path: '/highlights',
+        element: <DashboardPage /> // Replace with HighlightsPage when created
+    },
+    {
+        path: '/study-materials',
+        element: <DashboardPage /> // Replace with StudyMaterialsPage when created
+    },
+    {
+        path: '/users',
+        element: <DashboardPage /> // Replace with UsersPage when created
+    },
+    {
+        path: '/settings',
+        element: <DashboardPage /> // Replace with SettingsPage when created
+    },
+    {
+        path: '*',
+        element: <Navigate to="/login" replace />
+    }
 ]); 
