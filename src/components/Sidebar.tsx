@@ -1,5 +1,7 @@
 import { motion } from 'framer-motion';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { signOut } from "firebase/auth";
+import { auth } from "../firebase"
+import { Link, useLocation, } from 'react-router-dom';
 import {
     FaHome,
     FaSignOutAlt,
@@ -22,15 +24,21 @@ const menuItems = [
 function Sidebar() {
     const [isCollapsed, setIsCollapsed] = useState(false);
     const location = useLocation();
-    const navigate = useNavigate();
 
     const user = {
         email: 'admin@example.com',
         avatar: null // Set to null to use default avatar
     };
 
-    const handleLogout = () => {
-        navigate('/login');
+    const handleLogout = async () => {
+        try {
+            await signOut(auth);
+            console.log("Logged out successfully");
+            // optional: redirect manually if needed
+            // navigate("/login");
+        } catch (error) {
+            console.error("Logout error:", error);
+        }
     };
 
     return (

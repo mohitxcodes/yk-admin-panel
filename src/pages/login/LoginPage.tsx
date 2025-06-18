@@ -1,22 +1,28 @@
 import { motion } from 'framer-motion';
-import { FaEnvelope, FaLock, FaGoogle, FaGithub, FaLinkedin } from 'react-icons/fa';
+import { FaEnvelope, FaLock, } from 'react-icons/fa';
 import { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../../firebase";
+
+
 
 function LoginPage() {
-    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         email: '',
         password: '',
-        rememberMe: false
     });
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        // Handle login logic here
         console.log('Login attempt:', formData);
-        // For demo purposes, navigate to dashboard
-        navigate('/dashboard');
+
+        try {
+            await signInWithEmailAndPassword(auth, formData.email, formData.password);
+            console.log("Login Successfully")
+        } catch {
+            console.log("Something went wronge");
+        }
+
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
