@@ -66,7 +66,7 @@ function BlogPage() {
                                 <div className="px-4 py-2 flex flex-col flex-1 min-w-0 justify-center">
 
                                     <h3 className="text-base font-bold text-white mb-0.5 truncate">{blog.title}</h3>
-                                    <p className="text-gray-300 text-xs mb-1 line-clamp-1">{blog.subtitle}</p>
+                                    <p className="text-gray-300 text-xs mb-1 line-clamp-2 pr-28">{blog.subtitle}</p>
                                     <div className="flex justify-between items-center">
                                         <div className="flex gap-2">
                                             {blog.hashtags.map(tag => (
