@@ -5,6 +5,7 @@ import DashboardPage from "./pages/dashboard/DashboardPage";
 import BlogPage from "./pages/blogs/BlogPage";
 import GuestLayout from "./routes/GuestLayout";
 import ProtectedLayout from "./routes/ProctedLayout";
+import CreateBlogPage from './pages/blogs/CreateBlogPage';
 
 export const router = createBrowserRouter([
     {
@@ -28,6 +29,7 @@ export const router = createBrowserRouter([
                 children: [
                     { path: 'dashboard', element: <DashboardPage /> },
                     { path: 'blogs', element: <BlogPage /> },
+                    { path: 'blogs/create', element: <CreateBlogPage /> },
                 ]
             }
         ],

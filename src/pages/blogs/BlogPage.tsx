@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
-import { useState } from 'react';
-import { FaPlus, FaImage, FaHashtag, FaTrash } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+import { FaRegFileAlt, FaRegCalendarAlt } from 'react-icons/fa';
 
 interface Blog {
     id: string;
@@ -12,242 +12,98 @@ interface Blog {
     createdAt: string;
 }
 
-function BlogPage() {
-    const [isCreating, setIsCreating] = useState(false);
-    const [formData, setFormData] = useState({
-        title: '',
-        subtitle: '',
+const staticBlogs: Blog[] = [
+    {
+        id: '1',
+        title: 'Understanding Cloud Architecture',
+        subtitle: 'A deep dive into modern cloud architecture patterns and best practices for scalable applications.',
         content: '',
-        hashtags: [] as string[],
-        imageUrl: '',
-        currentHashtag: ''
-    });
+        hashtags: ['Cloud', 'Architecture', 'AWS'],
+        imageUrl: 'https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=800&q=80',
+        createdAt: 'March 15, 2024',
+    },
+    {
+        id: '2',
+        title: 'The Future of AI in Healthcare',
+        subtitle: 'Exploring how artificial intelligence is transforming healthcare delivery and patient care.',
+        content: '',
+        hashtags: ['AI', 'Healthcare', 'Technology'],
+        imageUrl: 'https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?auto=format&fit=crop&w=800&q=80',
+        createdAt: 'March 10, 2024',
+    },
+    {
+        id: '3',
+        title: 'Building Scalable Microservices',
+        subtitle: 'Best practices and patterns for designing and implementing scalable microservices architecture.',
+        content: '',
+        hashtags: ['Microservices', 'Architecture', 'Scalability'],
+        imageUrl: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=800&q=80',
+        createdAt: 'March 5, 2024',
+    },
+];
 
-    // Mock blogs data - replace with actual data from your backend
-    const [blogs, setBlogs] = useState<Blog[]>([
-        {
-            id: '1',
-            title: 'Getting Started with Web Development',
-            subtitle: 'A comprehensive guide for beginners',
-            content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit...',
-            hashtags: ['webdev', 'beginners', 'tutorial'],
-            imageUrl: 'https://picsum.photos/800/400',
-            createdAt: '2024-03-20'
-        }
-    ]);
-
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        const newBlog: Blog = {
-            id: Date.now().toString(),
-            title: formData.title,
-            subtitle: formData.subtitle,
-            content: formData.content,
-            hashtags: formData.hashtags,
-            imageUrl: formData.imageUrl || 'https://picsum.photos/800/400',
-            createdAt: new Date().toISOString().split('T')[0]
-        };
-        setBlogs([newBlog, ...blogs]);
-        setIsCreating(false);
-        setFormData({
-            title: '',
-            subtitle: '',
-            content: '',
-            hashtags: [],
-            imageUrl: '',
-            currentHashtag: ''
-        });
-    };
-
-    const handleHashtagAdd = () => {
-        if (formData.currentHashtag && !formData.hashtags.includes(formData.currentHashtag)) {
-            setFormData(prev => ({
-                ...prev,
-                hashtags: [...prev.hashtags, prev.currentHashtag],
-                currentHashtag: ''
-            }));
-        }
-    };
-
-    const handleHashtagRemove = (hashtag: string) => {
-        setFormData(prev => ({
-            ...prev,
-            hashtags: prev.hashtags.filter(h => h !== hashtag)
-        }));
-    };
+function BlogPage() {
+    const navigate = useNavigate();
 
     return (
-        <div>
-            {/* Header */}
-            <div className="flex justify-between items-center mb-8">
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-white to-gray-400 text-transparent bg-clip-text">
-                    Blogs
-                </h1>
-                <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => setIsCreating(true)}
-                    className="flex items-center gap-2 px-4 py-2 bg-white text-black rounded-xl hover:bg-gray-100 transition-colors"
-                >
-                    <FaPlus />
-                    <span>Create Blog</span>
-                </motion.button>
-            </div>
+        <div className="relative min-h-screen">
 
-            {/* Create Blog Form */}
-            {isCreating && (
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="bg-gray-900/30 backdrop-blur-sm rounded-2xl border border-gray-800 p-6 mb-8"
-                >
-                    <h2 className="text-xl font-semibold mb-4">Create New Blog</h2>
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        {/* Title */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-2">Title</label>
-                            <input
-                                type="text"
-                                value={formData.title}
-                                onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
-                                className="w-full px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-xl focus:border-gray-600 focus:ring-2 focus:ring-gray-600/20 transition-all"
-                                required
-                            />
-                        </div>
-
-                        {/* Subtitle */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-2">Subtitle</label>
-                            <input
-                                type="text"
-                                value={formData.subtitle}
-                                onChange={(e) => setFormData(prev => ({ ...prev, subtitle: e.target.value }))}
-                                className="w-full px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-xl focus:border-gray-600 focus:ring-2 focus:ring-gray-600/20 transition-all"
-                                required
-                            />
-                        </div>
-
-                        {/* Content */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-2">Content</label>
-                            <textarea
-                                value={formData.content}
-                                onChange={(e) => setFormData(prev => ({ ...prev, content: e.target.value }))}
-                                className="w-full px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-xl focus:border-gray-600 focus:ring-2 focus:ring-gray-600/20 transition-all min-h-[200px]"
-                                required
-                            />
-                        </div>
-
-                        {/* Hashtags */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-2">Hashtags</label>
-                            <div className="flex gap-2 mb-2">
-                                <input
-                                    type="text"
-                                    value={formData.currentHashtag}
-                                    onChange={(e) => setFormData(prev => ({ ...prev, currentHashtag: e.target.value }))}
-                                    className="flex-1 px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-xl focus:border-gray-600 focus:ring-2 focus:ring-gray-600/20 transition-all"
-                                    placeholder="Add hashtag"
-                                />
-                                <button
-                                    type="button"
-                                    onClick={handleHashtagAdd}
-                                    className="px-4 py-2 bg-gray-800 border border-gray-700 rounded-xl hover:bg-gray-700 transition-colors"
-                                >
-                                    <FaHashtag />
-                                </button>
-                            </div>
-                            <div className="flex flex-wrap gap-2">
-                                {formData.hashtags.map((hashtag) => (
-                                    <span
-                                        key={hashtag}
-                                        className="flex items-center gap-2 px-3 py-1 bg-gray-800 rounded-lg text-sm"
-                                    >
-                                        #{hashtag}
-                                        <button
-                                            type="button"
-                                            onClick={() => handleHashtagRemove(hashtag)}
-                                            className="text-gray-400 hover:text-white"
-                                        >
-                                            <FaTrash className="w-3 h-3" />
-                                        </button>
-                                    </span>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Image Upload */}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-300 mb-2">Cover Image</label>
-                            <div className="flex items-center gap-4">
-                                <input
-                                    type="text"
-                                    value={formData.imageUrl}
-                                    onChange={(e) => setFormData(prev => ({ ...prev, imageUrl: e.target.value }))}
-                                    className="flex-1 px-4 py-2 bg-gray-800/50 border border-gray-700 rounded-xl focus:border-gray-600 focus:ring-2 focus:ring-gray-600/20 transition-all"
-                                    placeholder="Image URL"
-                                />
-                                <button
-                                    type="button"
-                                    className="px-4 py-2 bg-gray-800 border border-gray-700 rounded-xl hover:bg-gray-700 transition-colors"
-                                >
-                                    <FaImage />
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* Form Actions */}
-                        <div className="flex justify-end gap-4 mt-6">
-                            <button
-                                type="button"
-                                onClick={() => setIsCreating(false)}
-                                className="px-4 py-2 text-gray-400 hover:text-white transition-colors"
-                            >
-                                Cancel
-                            </button>
-                            <motion.button
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
-                                type="submit"
-                                className="px-6 py-2 bg-white text-black rounded-xl hover:bg-gray-100 transition-colors"
-                            >
-                                Publish Blog
-                            </motion.button>
-                        </div>
-                    </form>
-                </motion.div>
-            )}
-
-            {/* Blog List */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {blogs.map((blog) => (
-                    <motion.div
-                        key={blog.id}
-                        whileHover={{ scale: 1.02 }}
-                        className="bg-gray-900/30 backdrop-blur-sm rounded-2xl border border-gray-800 overflow-hidden"
+            <div className="relative z-10 max-w-7xl mx-auto px-4 pb-20">
+                {/* Header Row */}
+                <div className="flex items-center justify-between mt-10 mb-12">
+                    <h1 className="text-4xl font-extrabold text-white tracking-tight drop-shadow-lg">
+                        Blogs
+                    </h1>
+                    <motion.button
+                        whileHover={{ scale: 1.07 }}
+                        whileTap={{ scale: 0.97 }}
+                        onClick={() => navigate('/blogs/create')}
+                        className="flex items-center gap-2 px-6 py-2 bg-white/10 text-white rounded-xl shadow border border-white/20 hover:bg-white/20 transition-all font-bold text-base backdrop-blur-lg focus:outline-none focus:ring-2 focus:ring-white"
                     >
-                        <img
-                            src={blog.imageUrl}
-                            alt={blog.title}
-                            className="w-full h-48 object-cover"
-                        />
-                        <div className="p-6">
-                            <h3 className="text-xl font-semibold mb-2">{blog.title}</h3>
-                            <p className="text-gray-400 mb-4">{blog.subtitle}</p>
-                            <div className="flex flex-wrap gap-2 mb-4">
-                                {blog.hashtags.map((hashtag) => (
-                                    <span
-                                        key={hashtag}
-                                        className="px-2 py-1 bg-gray-800 rounded-lg text-sm text-gray-400"
-                                    >
-                                        #{hashtag}
+                        <span className="text-xl font-bold">+</span>
+                        <span>Create Blog</span>
+                    </motion.button>
+                </div>
+
+                {/* Blog List */}
+                {staticBlogs.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-24 text-gray-500">
+                        <FaRegFileAlt className="w-16 h-16 mb-4 opacity-30" />
+                        <p className="text-lg font-semibold mb-2">No blogs found</p>
+                        <p className="text-sm">Start by creating your first blog post!</p>
+                    </div>
+                ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                        {staticBlogs.map((blog) => (
+                            <motion.div
+                                key={blog.id}
+                                whileHover={{ scale: 1.03, borderColor: '#fff', boxShadow: '0 8px 32px 0 rgba(255,255,255,0.08)' }}
+                                className="border border-white/10 rounded-2xl shadow-lg overflow-hidden flex flex-col transition-all duration-200 group hover:shadow-2xl hover:-translate-y-1 hover:border-white/30 bg-transparent backdrop-blur-sm"
+                            >
+                                <img
+                                    src={blog.imageUrl}
+                                    alt={blog.title}
+                                    className="w-full h-40 object-cover"
+                                />
+                                <div className="p-5 flex flex-col flex-1">
+                                    <span className="text-xs text-gray-400 mb-2 flex items-center gap-1">
+                                        <FaRegCalendarAlt className="inline-block" /> {blog.createdAt}
                                     </span>
-                                ))}
-                            </div>
-                            <p className="text-gray-500 text-sm">{blog.createdAt}</p>
-                        </div>
-                    </motion.div>
-                ))}
+                                    <h3 className="text-lg font-bold text-white mb-1 truncate">{blog.title}</h3>
+                                    <p className="text-gray-300 text-sm mb-3 line-clamp-2">{blog.subtitle}</p>
+                                    <div className="flex flex-wrap gap-2 mb-3">
+                                        {blog.hashtags.map(tag => (
+                                            <span key={tag} className="bg-white/5 text-gray-200 border border-white/10 rounded px-2 py-0.5 text-xs">{tag}</span>
+                                        ))}
+                                    </div>
+                                    <a href="#" className="mt-auto text-gray-200 text-sm flex items-center gap-1 hover:underline">
+                                        Read More <span className="text-lg">→</span>
+                                    </a>
+                                </div>
+                            </motion.div>
+                        ))}
+                    </div>
+                )}
             </div>
         </div>
     );

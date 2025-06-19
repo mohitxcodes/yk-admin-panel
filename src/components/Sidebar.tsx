@@ -10,7 +10,6 @@ import {
     FaBook,
     FaNewspaper,
     FaLightbulb,
-    FaUserCircle
 } from 'react-icons/fa';
 import { useState } from 'react';
 
@@ -34,8 +33,6 @@ function Sidebar() {
         try {
             await signOut(auth);
             console.log("Logged out successfully");
-            // optional: redirect manually if needed
-            // navigate("/login");
         } catch (error) {
             console.error("Logout error:", error);
         }
@@ -45,22 +42,20 @@ function Sidebar() {
         <motion.div
             initial={{ x: -300 }}
             animate={{ x: 0 }}
-            className={`h-screen bg-gray-900/30 backdrop-blur-sm border-r border-gray-800 fixed left-0 top-0 z-20 transition-all duration-300 ${isCollapsed ? 'w-20' : 'w-64'
-                }`}
+            className={`h-screen bg-black/30 border-r border-white/10 fixed left-0 top-0 z-20 transition-all duration-300 ${isCollapsed ? 'w-20' : 'w-64'}`}
         >
             {/* Toggle Button */}
             <button
                 onClick={() => setIsCollapsed(!isCollapsed)}
-                className="absolute -right-3 top-6 bg-gray-800 p-1.5 rounded-full border border-gray-700 hover:bg-gray-700 transition-colors"
+                className="absolute -right-3 top-6 bg-black/70 p-1.5 rounded-full border border-white/10 hover:bg-white/10 transition-colors"
             >
                 {isCollapsed ? <FaBars className="text-gray-400" /> : <FaTimes className="text-gray-400" />}
             </button>
 
             {/* Logo */}
             <div className="p-6">
-                <h1 className={`text-xl font-bold bg-gradient-to-r from-white to-gray-400 text-transparent bg-clip-text ${isCollapsed ? 'text-center' : ''
-                    }`}>
-                    {isCollapsed ? 'YK' : 'YK Admin'}
+                <h1 className={`text-xl font-bold bg-gradient-to-r from-white to-gray-400 text-transparent bg-clip-text ${isCollapsed ? 'text-center' : ''}`}>
+                    {isCollapsed ? 'YK' : 'Yashwant Kr.'}
                 </h1>
             </div>
 
@@ -71,9 +66,8 @@ function Sidebar() {
                         key={item.path}
                         to={item.path}
                         className={`flex items-center gap-4 px-4 py-3 rounded-xl mb-2 transition-all ${location.pathname === item.path
-                            ? 'bg-white/10 text-white'
-                            : 'text-gray-400 hover:bg-white/5 hover:text-white'
-                            }`}
+                            ? 'bg-white/10 text-white font-semibold'
+                            : 'text-gray-300 hover:bg-white/5 hover:text-white'} font-medium`}
                     >
                         <span className="text-lg">{item.icon}</span>
                         {!isCollapsed && <span>{item.label}</span>}
@@ -82,34 +76,19 @@ function Sidebar() {
             </nav>
 
             {/* User Profile Section */}
-            <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-800">
-                <div className={`flex items-center gap-3 ${isCollapsed ? 'justify-center' : ''}`}>
-                    {/* Avatar */}
-                    <div className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center overflow-hidden">
-                        {user.avatar ? (
-                            <img src={user.avatar} alt="User avatar" className="w-full h-full object-cover" />
-                        ) : (
-                            <FaUserCircle className="w-8 h-8 text-gray-400" />
-                        )}
-                    </div>
-
-                    {/* User Info */}
-                    {!isCollapsed && (
-                        <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-white truncate">
-                                {user.email}
-                            </p>
-                        </div>
-                    )}
-
-                    {/* Logout Button */}
+            <div className="absolute bottom-0 left-0 border-t border-gray-500/20 right-0 px-6 py-5 bg-gradient-to-t from-black/90 via-black/80 to-transparent backdrop-blur-2xl">
+                <div className={`flex flex-col items-center w-full gap-3`}>
+                    {/* Email always visible at top, full width, no truncation */}
+                    <span className="w-full text-center text-sm font-semibold text-white/90 tracking-tight break-all select-all mb-2">
+                        {user.email}
+                    </span>
                     <button
                         onClick={handleLogout}
-                        className={`flex items-center gap-2 px-3 py-2 rounded-lg text-gray-400 hover:bg-white/5 hover:text-white transition-all ${isCollapsed ? 'justify-center' : ''
-                            }`}
+                        className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-white font-medium border border-white/10 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-blue-400/30"
+                        title="Logout"
                     >
-                        <FaSignOutAlt className="text-lg" />
-                        {!isCollapsed && <span className="text-sm">Logout</span>}
+                        <FaSignOutAlt className="text-base opacity-80" />
+                        {!isCollapsed && <span className="text-xs">Logout</span>}
                     </button>
                 </div>
             </div>
@@ -117,4 +96,4 @@ function Sidebar() {
     );
 }
 
-export default Sidebar; 
+export default Sidebar;
