@@ -1,24 +1,10 @@
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { FaPlus, FaDownload, FaFilePdf, FaFilePowerpoint, FaFileAlt } from 'react-icons/fa';
-
-// Dummy data for now
-const dummyMaterials = [
-    {
-        id: '1',
-        name: 'Sample Notes.pdf',
-        type: 'pdf',
-        url: '#',
-        uploadedAt: '2024-06-01',
-    },
-    {
-        id: '2',
-        name: 'Lecture Slides.pptx',
-        type: 'ppt',
-        url: '#',
-        uploadedAt: '2024-06-02',
-    },
-];
+import { useState, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { FaPlus, FaDownload, FaFilePdf, FaFilePowerpoint, FaFileAlt, FaTimes } from 'react-icons/fa';
+import { uploadToCloudinary } from '../../apis/uploadToCloudinary';
+import { db } from '../../firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import useFetchStudyMaterial from '../../hooks/useFetchStudyMaterial';
 
 function getFileIcon(type: string) {
     if (type === 'pdf') return <FaFilePdf className="text-red-400 w-5 h-5" />;
@@ -26,19 +12,58 @@ function getFileIcon(type: string) {
     return <FaFileAlt className="text-gray-400 w-5 h-5" />;
 }
 
-export default function StudyMaterialPage() {
-    const [materials, setMaterials] = useState(dummyMaterials);
+function getFileTypeLabel(type: string) {
+    if (!type) return "Unknown";
+    if (type.toLowerCase() === "pdf") return "PDF Document";
+    if (type.toLowerCase() === "ppt" || type.toLowerCase() === "pptx") return "PPT Document";
+    return type.toUpperCase();
+}
 
-    // Placeholder for upload logic
-    const handleUpload = () => {
-        // Open upload modal or file picker
-        alert('Upload functionality coming soon!');
+export default function StudyMaterialPage() {
+    const [modalOpen, setModalOpen] = useState(false);
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [uploading, setUploading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    const { materials, loading } = useFetchStudyMaterial();
+
+    const handleUpload = () => setModalOpen(true);
+    const closeModal = () => {
+        setModalOpen(false);
+        setSelectedFile(null);
+        setUploading(false);
+        setError(null);
+    };
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            setSelectedFile(e.target.files[0]);
+        }
+    };
+
+    const handleUploadToCloudinary = async () => {
+        if (!selectedFile) return;
+        setUploading(true);
+        setError(null);
+        try {
+            const meta = await uploadToCloudinary(selectedFile);
+            await addDoc(collection(db, 'study-materials'), {
+                name: meta.fileName,
+                type: meta.fileType,
+                url: meta.url,
+                uploadedAt: serverTimestamp(),
+            });
+            closeModal();
+        } catch (err: any) {
+            setError(err.message || 'Upload failed!');
+            setUploading(false);
+        }
     };
 
     return (
         <div className="relative min-h-screen">
             <div className="relative z-10 max-w-7xl mx-auto px-4 pb-32">
-                {/* Header Row */}
                 <div className="flex items-center justify-between mt-10 mb-6">
                     <h1 className="text-4xl font-extrabold text-white tracking-tight drop-shadow-lg">
                         Study Materials
@@ -55,8 +80,12 @@ export default function StudyMaterialPage() {
                     </motion.button>
                 </div>
 
-                {/* Material List */}
-                {materials.length === 0 ? (
+                {loading ? (
+                    <div className="flex flex-col items-center justify-center py-24 text-gray-500">
+                        <span className="animate-spin mb-4"><FaFileAlt className="w-10 h-10 opacity-30" /></span>
+                        <p className="text-lg font-semibold mb-2">Loading study materials...</p>
+                    </div>
+                ) : (!materials || materials.length === 0) ? (
                     <div className="flex flex-col items-center justify-center py-24 text-gray-500">
                         <FaFileAlt className="w-16 h-16 mb-4 opacity-30" />
                         <p className="text-lg font-semibold mb-2">No study materials found</p>
@@ -64,41 +93,78 @@ export default function StudyMaterialPage() {
                     </div>
                 ) : (
                     <div className="flex flex-col gap-3">
-                        {materials.map((mat) => (
+                        {materials.map((item) => (
                             <motion.div
-                                key={mat.id}
-                                whileHover={{ scale: 1.01, borderColor: '#fff', boxShadow: '0 8px 32px 0 rgba(255,255,255,0.08)' }}
-                                className="border border-white/10 rounded-xl shadow-lg overflow-hidden flex flex-row items-center transition-all duration-200 group hover:shadow-2xl hover:-translate-y-0.5 hover:border-white/30 bg-transparent backdrop-blur-sm relative min-h-[64px]"
+                                key={item.id}
+                                whileHover={{ scale: 1.01 }}
+                                className="border border-white/10 rounded-xl shadow-lg flex items-center backdrop-blur-sm hover:border-white/30"
                             >
-                                {/* File Icon */}
                                 <div className="w-14 h-14 flex items-center justify-center bg-white/5 rounded-l-xl ml-2">
-                                    {getFileIcon(mat.type)}
+                                    {getFileIcon(item.type)}
                                 </div>
-                                {/* File Info */}
-                                <div className="px-4 py-2 flex flex-col flex-1 min-w-0 justify-center">
-                                    <h3 className="text-base font-bold text-white mb-0.5 truncate">{mat.name}</h3>
-                                    <div className="flex justify-between items-center">
-                                        <span className="text-xs text-gray-400 flex items-center gap-1">
-                                            Uploaded: {mat.uploadedAt}
-                                        </span>
-                                        <span className="text-xs text-gray-500 uppercase font-mono">{mat.type}</span>
-                                    </div>
+                                <div className="px-4 py-2 flex flex-col flex-1">
+                                    <h3 className="text-base font-bold text-white truncate">{item.name}</h3>
+                                    <span className="text-xs text-gray-400">Uploaded: {item.uploadedAt}</span>
                                 </div>
-                                {/* Download Button */}
-                                <a
-                                    href={mat.url}
-                                    download
-                                    className="flex items-center gap-1 absolute top-2 right-2 z-10 px-2 py-1 rounded text-xs cursor-pointer font-semibold text-blue-500 bg-white/10 hover:bg-blue-100 hover:text-blue-700 transition-all"
-                                    title="Download file"
-                                >
-                                    <FaDownload className="w-3 h-3" />
-                                    Download
-                                </a>
+                                <div className="flex flex-col items-end mr-4 py-2">
+                                    <a
+                                        href={`${item.url}?fl_attachment=${item.name}.${item.type}`}
+                                        download
+                                        target="_blank"
+                                        className="px-2 py-1 bg-white/10 text-blue-400 rounded hover:bg-white/20 text-sm"
+                                    >
+                                        <FaDownload className="inline-block mr-1" /> Download
+                                    </a>
+                                    <span className="text-xs text-gray-400 mt-1">
+                                        Type: {getFileTypeLabel(item.type)}
+                                    </span>
+                                </div>
                             </motion.div>
                         ))}
                     </div>
                 )}
             </div>
+
+            <AnimatePresence>
+                {modalOpen && (
+                    <motion.div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+                        <motion.div
+                            initial={{ scale: 0.95, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.95, opacity: 0 }}
+                            className="bg-gray-900 border border-gray-700 rounded-2xl p-8 w-full max-w-md"
+                        >
+                            <button
+                                className="absolute top-4 right-4 text-gray-400 hover:text-white"
+                                onClick={closeModal}
+                                disabled={uploading}
+                            >
+                                <FaTimes className="w-5 h-5" />
+                            </button>
+                            <h2 className="text-xl font-bold text-white mb-4">Upload Study Material</h2>
+                            <input
+                                type="file"
+                                ref={fileInputRef}
+                                onChange={handleFileChange}
+                                className="block w-full text-sm text-gray-300 file:py-2 file:px-4 file:rounded file:bg-white/10 file:text-white hover:file:bg-white/20"
+                                disabled={uploading}
+                            />
+                            {selectedFile && (
+                                <p className="text-white text-sm mt-2">Selected: {selectedFile.name}</p>
+                            )}
+                            {uploading && <p className="text-sm text-gray-400 mt-2">Uploading...</p>}
+                            {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
+                            <button
+                                onClick={handleUploadToCloudinary}
+                                className="mt-4 w-full py-2 bg-white text-black rounded font-semibold disabled:opacity-50"
+                                disabled={!selectedFile || uploading}
+                            >
+                                {uploading ? 'Uploading...' : 'Upload'}
+                            </button>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
         </div>
     );
-} 
+}

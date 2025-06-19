@@ -23,8 +23,8 @@ function CreateBlogPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        const imageUrl = await uploadToCloudinary(imageFile);
-        console.log(imageUrl);
+        const { url } = await uploadToCloudinary(imageFile);
+        console.log(url);
 
         try {
             setUploading(true);
@@ -33,7 +33,7 @@ function CreateBlogPage() {
                 subtitle: formData.subtitle,
                 content: formData.content,
                 hashtags: formData.hashtags,
-                imageUrl,
+                imageUrl: url,
                 createdAt: Timestamp.now(),
             };
             await addDoc(collection(db, "blogs"), blogData);
