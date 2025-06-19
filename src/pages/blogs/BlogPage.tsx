@@ -1,49 +1,12 @@
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { FaRegFileAlt, FaRegCalendarAlt } from 'react-icons/fa';
+import useBlogs, { type Blog } from "../../hooks/useFetchBlogs"
 
-interface Blog {
-    id: string;
-    title: string;
-    subtitle: string;
-    content: string;
-    hashtags: string[];
-    imageUrl: string;
-    createdAt: string;
-}
-
-const staticBlogs: Blog[] = [
-    {
-        id: '1',
-        title: 'Understanding Cloud Architecture',
-        subtitle: 'A deep dive into modern cloud architecture patterns and best practices for scalable applications.',
-        content: '',
-        hashtags: ['Cloud', 'Architecture', 'AWS'],
-        imageUrl: 'https://images.unsplash.com/photo-1465101046530-73398c7f28ca?auto=format&fit=crop&w=800&q=80',
-        createdAt: 'March 15, 2024',
-    },
-    {
-        id: '2',
-        title: 'The Future of AI in Healthcare',
-        subtitle: 'Exploring how artificial intelligence is transforming healthcare delivery and patient care.',
-        content: '',
-        hashtags: ['AI', 'Healthcare', 'Technology'],
-        imageUrl: 'https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?auto=format&fit=crop&w=800&q=80',
-        createdAt: 'March 10, 2024',
-    },
-    {
-        id: '3',
-        title: 'Building Scalable Microservices',
-        subtitle: 'Best practices and patterns for designing and implementing scalable microservices architecture.',
-        content: '',
-        hashtags: ['Microservices', 'Architecture', 'Scalability'],
-        imageUrl: 'https://images.unsplash.com/photo-1461749280684-dccba630e2f6?auto=format&fit=crop&w=800&q=80',
-        createdAt: 'March 5, 2024',
-    },
-];
 
 function BlogPage() {
     const navigate = useNavigate();
+    const { blogs, loading } = useBlogs();
 
     return (
         <div className="relative min-h-screen">
@@ -66,7 +29,7 @@ function BlogPage() {
                 </div>
 
                 {/* Blog List */}
-                {staticBlogs.length === 0 ? (
+                {blogs.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-24 text-gray-500">
                         <FaRegFileAlt className="w-16 h-16 mb-4 opacity-30" />
                         <p className="text-lg font-semibold mb-2">No blogs found</p>
@@ -74,7 +37,7 @@ function BlogPage() {
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-                        {staticBlogs.map((blog) => (
+                        {blogs.map((blog) => (
                             <motion.div
                                 key={blog.id}
                                 whileHover={{ scale: 1.03, borderColor: '#fff', boxShadow: '0 8px 32px 0 rgba(255,255,255,0.08)' }}

@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaImage, FaHashtag, FaTrash } from 'react-icons/fa';
+import { db } from "../../firebase";
+import { addDoc, collection, Timestamp } from "firebase/firestore";
 
 function CreateBlogPage() {
     const navigate = useNavigate();
@@ -13,9 +15,25 @@ function CreateBlogPage() {
         currentHashtag: ''
     });
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log(formData)
+
+        try {
+            const blogData = {
+                title: formData.title,
+                subtitle: formData.subtitle,
+                content: formData.content,
+                hashtags: formData.hashtags,
+                imageUrl: formData.imageUrl,
+                createdAt: Timestamp.now(),
+            };
+
+            await addDoc(collection(db, "blogs"), blogData);
+            alert("✅ Blog published successfully!");
+        } catch (error) {
+            console.error("❌ Error adding blog:", error);
+            alert("Something went wrong while publishing your blog.");
+        }
     };
 
     const handleHashtagAdd = () => {
@@ -36,7 +54,7 @@ function CreateBlogPage() {
     };
 
     return (
-        <div className="min-h-max w-full px-4 py-4 ">
+        <div className="min-h-max w-full px-4 py-4">
             <div className="max-w-5xl mx-auto">
                 <h1 className="text-2xl sm:text-3xl font-extrabold text-white mb-8 tracking-tight text-left">Create Blog</h1>
                 <form onSubmit={handleSubmit} className="space-y-5">
@@ -144,4 +162,4 @@ function CreateBlogPage() {
     );
 }
 
-export default CreateBlogPage; 
+export default CreateBlogPage;
