@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { FaRegFileAlt, FaRegCalendarAlt } from 'react-icons/fa';
+import { FaRegFileAlt, FaRegCalendarAlt, FaPlus } from 'react-icons/fa';
 import useBlogs, { type Blog } from "../../hooks/useFetchBlogs"
 
 
@@ -21,9 +21,10 @@ function BlogPage() {
                         whileHover={{ scale: 1.07 }}
                         whileTap={{ scale: 0.97 }}
                         onClick={() => navigate('/blogs/create')}
-                        className="flex items-center gap-2 px-6 py-2 bg-white/10 text-white rounded-xl shadow border border-white/20 hover:bg-white/20 transition-all font-bold text-base backdrop-blur-lg focus:outline-none focus:ring-2 focus:ring-white"
+                        className="flex cursor-pointer items-center gap-2 px-5 py-1.5 bg-white text-black rounded-md border border-white/20 shadow-lg transition font-semibold text-sm "
+                        aria-label="Create new blog"
                     >
-                        <span className="text-xl font-bold">+</span>
+                        <FaPlus />
                         <span>Create Blog</span>
                     </motion.button>
                 </div>

@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaImage, FaHashtag, FaTrash } from 'react-icons/fa';
+import { FaImage, FaHashtag, FaTrash, FaSpinner } from 'react-icons/fa';
 import { db } from "../../firebase";
 import { addDoc, collection, Timestamp } from "firebase/firestore";
+import { uploadToCloudinary } from "../../apis/uploadToCloudinary"
 
 function CreateBlogPage() {
     const navigate = useNavigate();
@@ -14,25 +15,35 @@ function CreateBlogPage() {
         imageUrl: '',
         currentHashtag: ''
     });
+    const [imageFile, setImageFile] = useState<File | null>(null);
+    const [uploading, setUploading] = useState(false);
+    const [imagePreview, setImagePreview] = useState<string | null>(null);
+
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
+        const imageUrl = await uploadToCloudinary(imageFile);
+        console.log(imageUrl);
+
         try {
+            setUploading(true);
             const blogData = {
                 title: formData.title,
                 subtitle: formData.subtitle,
                 content: formData.content,
                 hashtags: formData.hashtags,
-                imageUrl: formData.imageUrl,
+                imageUrl,
                 createdAt: Timestamp.now(),
             };
-
             await addDoc(collection(db, "blogs"), blogData);
             alert("✅ Blog published successfully!");
+            navigate('/blogs');
         } catch (error) {
             console.error("❌ Error adding blog:", error);
             alert("Something went wrong while publishing your blog.");
+        } finally {
+            setUploading(false);
         }
     };
 
@@ -53,8 +64,16 @@ function CreateBlogPage() {
         }));
     };
 
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setImageFile(file);
+            setImagePreview(URL.createObjectURL(file));
+        }
+    };
+
     return (
-        <div className="min-h-max w-full px-4 py-4">
+        <div className="min-h-screen w-full px-4 py-4">
             <div className="max-w-5xl mx-auto">
                 <h1 className="text-2xl sm:text-3xl font-extrabold text-white mb-8 tracking-tight text-left">Create Blog</h1>
                 <form onSubmit={handleSubmit} className="space-y-5">
@@ -129,30 +148,37 @@ function CreateBlogPage() {
                         </div>
                     </div>
                     <div>
-                        <label className="block text-base font-semibold text-white mb-1">Cover Image URL</label>
+                        <label className="block text-base font-semibold text-white mb-1">Cover Image</label>
                         <div className="flex items-center gap-4">
                             <input
-                                type="text"
-                                value={formData.imageUrl}
-                                onChange={e => setFormData(prev => ({ ...prev, imageUrl: e.target.value }))}
-                                className="flex-1 px-3 py-2 bg-transparent border border-white/30 rounded-lg focus:border-white focus:ring-2 focus:ring-white/10 transition-all text-white placeholder:text-gray-500 text-base"
-                                placeholder="Image URL"
+                                type="file"
+                                accept="image/*"
+                                onChange={handleImageChange}
+                                className="block w-full text-sm text-gray-400 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-white/10 file:text-white hover:file:bg-white/20"
                             />
                             <span className="text-gray-400"><FaImage /></span>
                         </div>
+                        {imagePreview && (
+                            <div className="mt-3">
+                                <img src={imagePreview} alt="Preview" className="max-h-40 rounded-lg border border-white/10" />
+                            </div>
+                        )}
                     </div>
                     <div className="flex justify-end gap-4 mt-4">
                         <button
                             type="button"
                             onClick={() => navigate('/blogs')}
                             className="px-4 py-2 text-gray-400 hover:text-white transition-colors text-base"
+                            disabled={uploading}
                         >
                             Cancel
                         </button>
                         <button
                             type="submit"
-                            className="px-6 py-2 bg-white text-black rounded-lg shadow hover:bg-gray-200 transition-colors font-semibold text-base"
+                            className="px-6 py-2 bg-white text-black rounded-lg shadow hover:bg-gray-200 transition-colors font-semibold text-base flex items-center gap-2"
+                            disabled={uploading}
                         >
+                            {uploading && <FaSpinner className="animate-spin" />}
                             Publish Blog
                         </button>
                     </div>
