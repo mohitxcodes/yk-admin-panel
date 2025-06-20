@@ -7,6 +7,8 @@ import GuestLayout from "./routes/GuestLayout";
 import ProtectedLayout from "./routes/ProctedLayout";
 import CreateBlogPage from './pages/blogs/CreateBlogPage';
 import StudyMaterialPage from './pages/studymaterial/StudyMaterialPage';
+import HighlightsPage from './pages/highlights/HIghlightsPage';
+import CreateHighlightsPage from './pages/highlights/CreateHighlightsPage';
 
 export const router = createBrowserRouter([
     {
@@ -32,6 +34,8 @@ export const router = createBrowserRouter([
                     { path: 'blogs', element: <BlogPage /> },
                     { path: 'blogs/create', element: <CreateBlogPage /> },
                     { path: 'study-materials', element: <StudyMaterialPage /> },
+                    { path: 'highlights', element: <HighlightsPage /> },
+                    { path: 'highlights/create', element: <CreateHighlightsPage /> },
                 ]
             }
         ],

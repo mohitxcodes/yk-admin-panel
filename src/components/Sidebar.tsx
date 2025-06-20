@@ -12,6 +12,7 @@ import {
     FaLightbulb,
 } from 'react-icons/fa';
 import { useState } from 'react';
+import useAuth from '../hooks/useAuth';
 
 const menuItems = [
     { icon: <FaHome />, label: 'Dashboard', path: '/dashboard' },
@@ -24,10 +25,7 @@ function Sidebar() {
     const [isCollapsed, setIsCollapsed] = useState(false);
     const location = useLocation();
 
-    const user = {
-        email: 'admin@example.com',
-        avatar: null // Set to null to use default avatar
-    };
+    const { user, loading } = useAuth();
 
     const handleLogout = async () => {
         try {
@@ -80,7 +78,7 @@ function Sidebar() {
                 <div className={`flex flex-col items-center w-full gap-3`}>
                     {/* Email always visible at top, full width, no truncation */}
                     <span className="w-full text-center text-sm font-semibold text-white/90 tracking-tight break-all select-all mb-2">
-                        {user.email}
+                        {loading ? 'Loading...' : user?.email || 'No email'}
                     </span>
                     <button
                         onClick={handleLogout}
