@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { FaImage, FaHashtag, FaTrash, FaSpinner } from 'react-icons/fa';
 import { db } from "../../firebase";
 import { addDoc, collection, Timestamp } from "firebase/firestore";
-import { uploadToCloudinary } from "../../apis/uploadToCloudinary"
+import { uploadToImage } from "../../apis/uploadToImage"
 
 function CreateBlogPage() {
     const navigate = useNavigate();
@@ -23,8 +23,7 @@ function CreateBlogPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        const { url } = await uploadToCloudinary(imageFile);
-        console.log(url);
+        const imageUrl = await uploadToImage(imageFile);
 
         try {
             setUploading(true);
@@ -33,7 +32,7 @@ function CreateBlogPage() {
                 subtitle: formData.subtitle,
                 content: formData.content,
                 hashtags: formData.hashtags,
-                imageUrl: url,
+                imageUrl,
                 createdAt: Timestamp.now(),
             };
             await addDoc(collection(db, "blogs"), blogData);

@@ -1,4 +1,4 @@
-// src/utils/uploadToCloudinary.ts
+// src/utils/uploadToImage.ts
 import axios from 'axios';
 
 interface CloudinaryResponse {
@@ -9,28 +9,20 @@ interface CloudinaryResponse {
     bytes: number;
 }
 
-interface UploadedFileMetadata {
-    url: string;
-    fileName: string;
-    uploadedAt: string;
-    fileType: string;
-    size: number; // in bytes
-}
-
-export const uploadToCloudinary = async (
+export const uploadToImage = async (
     file: any
-): Promise<UploadedFileMetadata> => {
+): Promise<string> => {
     const formData = new FormData();
     formData.append('file', file);
     formData.append(
         'upload_preset',
         import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET
     );
-    formData.append('resource_type', 'auto');
+    formData.append('resource_type', 'image');
 
     try {
         const response = await axios.post<CloudinaryResponse>(
-            `https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/auto/upload`,
+            `https://api.cloudinary.com/v1_1/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload`,
             formData,
             {
                 headers: {
@@ -39,17 +31,9 @@ export const uploadToCloudinary = async (
             }
         );
 
-        const data = response.data;
-
-        return {
-            url: data.secure_url,
-            fileName: data.original_filename,
-            uploadedAt: data.created_at,
-            fileType: data.format,
-            size: data.bytes,
-        };
+        return response.data.secure_url;
     } catch (error: any) {
         console.error('Cloudinary upload error:', error.response?.data || error.message);
-        throw new Error('File upload to Cloudinary failed.');
+        throw new Error('Image upload to Cloudinary failed.');
     }
 };

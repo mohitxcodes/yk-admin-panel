@@ -1,14 +1,14 @@
 import { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaPlus, FaDownload, FaFilePdf, FaFilePowerpoint, FaFileAlt, FaTimes } from 'react-icons/fa';
-import { uploadToCloudinary } from '../../apis/uploadToCloudinary';
+import { FaPlus, FaDownload, FaFilePdf, FaFilePowerpoint, FaFileAlt, FaTimes, FaTrash } from 'react-icons/fa';
+import { uploadDocs } from '../../apis/uploadDocs';
 import { db } from '../../firebase';
-import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, addDoc, serverTimestamp, doc, deleteDoc } from 'firebase/firestore';
 import useFetchStudyMaterial from '../../hooks/useFetchStudyMaterial';
 
 function getFileIcon(type: string) {
     if (type === 'pdf') return <FaFilePdf className="text-red-400 w-5 h-5" />;
-    if (type === 'ppt') return <FaFilePowerpoint className="text-orange-400 w-5 h-5" />;
+    if (type === 'ppt' || 'pptx') return <FaFilePowerpoint className="text-orange-400 w-5 h-5" />;
     return <FaFileAlt className="text-gray-400 w-5 h-5" />;
 }
 
@@ -47,17 +47,48 @@ export default function StudyMaterialPage() {
         setUploading(true);
         setError(null);
         try {
-            const meta = await uploadToCloudinary(selectedFile);
+            const meta = await uploadDocs(selectedFile);
+
+            // Ensure all fields have valid values before saving to Firestore
+            const fileType = meta.fileType || selectedFile.name.split('.').pop()?.toLowerCase() || 'unknown';
+            const fileName = meta.fileName || selectedFile.name;
+            const fileUrl = meta.url;
+
+            if (!fileUrl) {
+                throw new Error('Upload failed: No URL received');
+            }
+
             await addDoc(collection(db, 'study-materials'), {
-                name: meta.fileName,
-                type: meta.fileType,
-                url: meta.url,
+                name: fileName,
+                type: fileType,
+                url: fileUrl,
                 uploadedAt: serverTimestamp(),
             });
             closeModal();
         } catch (err: any) {
             setError(err.message || 'Upload failed!');
             setUploading(false);
+        }
+    };
+
+    const handleDownload = (item: any) => {
+        const link = document.createElement('a');
+        link.href = item.url + '?fl_attachment';
+        link.download = item.name;
+        link.target = '_blank';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+    const handleDelete = async (id: string) => {
+        if (!window.confirm("Are you sure you want to delete this file?")) return;
+        try {
+            await deleteDoc(doc(db, "study-materials", id));
+            alert("File deleted successfully!");
+        } catch (error) {
+            console.error("Error deleting file:", error);
+            alert("Failed to delete file.");
         }
     };
 
@@ -107,14 +138,20 @@ export default function StudyMaterialPage() {
                                     <span className="text-xs text-gray-400">Uploaded: {item.uploadedAt}</span>
                                 </div>
                                 <div className="flex flex-col items-end mr-4 py-2">
-                                    <a
-                                        href={`${item.url}?fl_attachment=${item.name}.${item.type}`}
-                                        download
-                                        target="_blank"
-                                        className="px-2 py-1 bg-white/10 text-blue-400 rounded hover:bg-white/20 text-sm"
-                                    >
-                                        <FaDownload className="inline-block mr-1" /> Download
-                                    </a>
+                                    <div className="flex gap-2">
+                                        <button
+                                            onClick={() => handleDownload(item)}
+                                            className="px-2 py-1 bg-white/10 text-blue-400 rounded hover:bg-white/20 text-sm"
+                                        >
+                                            <FaDownload className="inline-block mr-1" /> Download
+                                        </button>
+                                        <button
+                                            onClick={() => handleDelete(item.id)}
+                                            className="px-2 py-1 bg-white/10 text-red-400 rounded hover:bg-white/20 text-sm"
+                                        >
+                                            <FaTrash className="inline-block mr-1" /> Delete
+                                        </button>
+                                    </div>
                                     <span className="text-xs text-gray-400 mt-1">
                                         Type: {getFileTypeLabel(item.type)}
                                     </span>
@@ -146,6 +183,7 @@ export default function StudyMaterialPage() {
                                 type="file"
                                 ref={fileInputRef}
                                 onChange={handleFileChange}
+                                accept=".pdf,.ppt,.pptx,.doc,.docx,.xls,.xlsx,.txt,.zip,.rar,.csv,.json,.xml,.html,.js,.ts,.md,.rtf,.odt,.ods,.odp,.pages,.numbers,.key"
                                 className="block w-full text-sm text-gray-300 file:py-2 file:px-4 file:rounded file:bg-white/10 file:text-white hover:file:bg-white/20"
                                 disabled={uploading}
                             />
