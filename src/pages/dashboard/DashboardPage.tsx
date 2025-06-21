@@ -1,9 +1,10 @@
 import { motion } from 'framer-motion';
-import { FaBook, FaRegLightbulb, FaFileAlt, FaUsers, FaPlus, FaArrowRight } from 'react-icons/fa';
+import { FaBook, FaRegLightbulb, FaFileAlt, FaPlus, FaArrowRight, FaEnvelope, FaUser } from 'react-icons/fa';
 import useAuth from '../../hooks/useAuth';
 import useBlogs from '../../hooks/useFetchBlogs';
 import useHighlights from '../../hooks/useFetchHighlights';
 import useFetchStudyMaterial from '../../hooks/useFetchStudyMaterial';
+import useFetchMessages from '../../hooks/useFetchMessages';
 import { useNavigate } from 'react-router-dom';
 
 function DashboardPage() {
@@ -11,10 +12,10 @@ function DashboardPage() {
     const { blogs, loading: blogsLoading } = useBlogs();
     const { highlights, loading: highlightsLoading } = useHighlights();
     const { materials, loading: materialsLoading } = useFetchStudyMaterial();
+    const { messages, loading: messagesLoading } = useFetchMessages();
     const navigate = useNavigate();
-    console.log(user)
 
-    // Stat summary
+    // Stat summary (add total messages)
     const stats = [
         {
             label: 'Blogs',
@@ -32,15 +33,16 @@ function DashboardPage() {
             icon: <FaFileAlt className="w-6 h-6 text-white/90" />,
         },
         {
-            label: 'Users',
-            value: 1234, // Replace with real user count if available
-            icon: <FaUsers className="w-6 h-6 text-white/90" />,
+            label: 'Messages',
+            value: messagesLoading ? '...' : messages.length,
+            icon: <FaEnvelope className="w-6 h-6 text-white/90" />,
         },
     ];
 
     // Recent items
-    const recentBlogs = blogs.slice(0, 3);
-    const recentHighlights = highlights.slice(0, 3);
+    const recentBlogs = blogs.slice(0, 1);
+    const recentHighlights = highlights.slice(0, 1);
+    const recentMessages = messages.slice(0, 2);
 
     return (
         <div className="relative min-h-screen px-4 max-w-7xl mx-auto pb-32">
@@ -78,12 +80,12 @@ function DashboardPage() {
                 </div>
             </div>
 
-            {/* Stat Row */}
+            {/* Stat Row - single row */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 mb-10">
                 {stats.map((stat) => (
                     <div
                         key={stat.label}
-                        className="flex items-center gap-4 border border-white/10 rounded-xl px-5 py-6 bg-transparent hover:border-white/30 transition-all min-h-[80px]"
+                        className="flex items-center gap-4 border border-white/10 rounded-xl px-5 py-6 bg-black/30 hover:border-white/30 transition-all min-h-[80px] backdrop-blur-sm shadow-lg"
                     >
                         <div className="bg-gray-900/60 rounded-xl p-2 border border-gray-800">
                             {stat.icon}
@@ -96,52 +98,77 @@ function DashboardPage() {
                 ))}
             </div>
 
-            {/* Recent Activity */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                {/* Recent Blogs */}
+            {/* Recent Activity - stacked vertically */}
+            <div className="flex flex-col gap-8">
+                {/* Recent Blog */}
                 <div>
-                    <div className="flex items-center justify-between mb-3">
-                        <h2 className="text-lg font-bold text-white">Recent Blogs</h2>
+                    <div className="flex items-center justify-between mb-2">
+                        <h2 className="text-lg font-bold text-white">Recent Blog</h2>
                         <button onClick={() => navigate('/blogs')} className="text-xs text-gray-400 hover:text-white flex items-center gap-1 font-medium">
                             View All <FaArrowRight className="w-3 h-3" />
                         </button>
                     </div>
-                    {recentBlogs.length === 0 ? (
-                        <div className="text-gray-500 text-sm py-8 flex flex-col items-center">
-                            No blogs yet.
-                        </div>
+                    {blogsLoading ? (
+                        <div className="text-gray-500 text-sm py-8 flex flex-col items-center">Loading...</div>
+                    ) : recentBlogs.length === 0 ? (
+                        <div className="text-gray-500 text-sm py-8 flex flex-col items-center">No blogs yet.</div>
                     ) : (
-                        <ul className="flex flex-col gap-2">
-                            {recentBlogs.map(blog => (
-                                <li key={blog.id} className="flex flex-col border-b border-white/10 pb-2 last:border-b-0">
-                                    <span className="font-semibold text-white truncate">{blog.title}</span>
-                                    <span className="text-xs text-gray-400">{blog.createdAt}</span>
-                                </li>
-                            ))}
-                        </ul>
+                        recentBlogs.map(blog => (
+                            <div key={blog.id} className="border border-white/10 rounded-xl bg-black/30 backdrop-blur-sm shadow flex flex-col p-4 gap-2 hover:border-white/30">
+                                <span className="font-semibold text-white truncate text-base">{blog.title}</span>
+                                <span className="text-xs text-gray-400 mb-1">{blog.createdAt}</span>
+                                <span className="text-gray-300 text-xs line-clamp-2">{blog.subtitle}</span>
+                            </div>
+                        ))
                     )}
                 </div>
-                {/* Recent Highlights */}
+                {/* Recent Highlight */}
                 <div>
-                    <div className="flex items-center justify-between mb-3">
-                        <h2 className="text-lg font-bold text-white">Recent Highlights</h2>
+                    <div className="flex items-center justify-between mb-2">
+                        <h2 className="text-lg font-bold text-white">Recent Highlight</h2>
                         <button onClick={() => navigate('/highlights')} className="text-xs text-gray-400 hover:text-white flex items-center gap-1 font-medium">
                             View All <FaArrowRight className="w-3 h-3" />
                         </button>
                     </div>
-                    {recentHighlights.length === 0 ? (
-                        <div className="text-gray-500 text-sm py-8 flex flex-col items-center">
-                            No highlights yet.
-                        </div>
+                    {highlightsLoading ? (
+                        <div className="text-gray-500 text-sm py-8 flex flex-col items-center">Loading...</div>
+                    ) : recentHighlights.length === 0 ? (
+                        <div className="text-gray-500 text-sm py-8 flex flex-col items-center">No highlights yet.</div>
                     ) : (
-                        <ul className="flex flex-col gap-2">
-                            {recentHighlights.map(h => (
-                                <li key={h.id} className="flex flex-col border-b border-white/10 pb-2 last:border-b-0">
-                                    <span className="font-semibold text-white truncate">{h.title}</span>
-                                    <span className="text-xs text-gray-400">{h.year} &bull; {h.location}</span>
-                                </li>
-                            ))}
-                        </ul>
+                        recentHighlights.map(h => (
+                            <div key={h.id} className="border border-white/10 rounded-xl bg-black/30 backdrop-blur-sm shadow flex flex-col p-4 gap-2 hover:border-white/30">
+                                <span className="font-semibold text-white truncate text-base">{h.title}</span>
+                                <span className="text-xs text-gray-400 mb-1">{h.year} &bull; {h.location}</span>
+                                <span className="text-gray-300 text-xs line-clamp-2">{h.description}</span>
+                            </div>
+                        ))
+                    )}
+                </div>
+                {/* Latest Messages */}
+                <div>
+                    <div className="flex items-center justify-between mb-2">
+                        <h2 className="text-lg font-bold text-white">Latest Messages</h2>
+                        <button onClick={() => navigate('/messages')} className="text-xs text-gray-400 hover:text-white flex items-center gap-1 font-medium">
+                            View All <FaArrowRight className="w-3 h-3" />
+                        </button>
+                    </div>
+                    {messagesLoading ? (
+                        <div className="text-gray-500 text-sm py-8 flex flex-col items-center">Loading...</div>
+                    ) : recentMessages.length === 0 ? (
+                        <div className="text-gray-500 text-sm py-8 flex flex-col items-center">No messages yet.</div>
+                    ) : (
+                        recentMessages.map(msg => (
+                            <div key={msg.id} className="border border-white/10 rounded-xl bg-black/30 backdrop-blur-sm shadow flex flex-col p-4 gap-2 hover:border-white/30">
+                                <div className="flex items-center gap-2 mb-1">
+                                    <FaUser className="text-gray-400 w-4 h-4" />
+                                    <span className="text-white font-semibold text-sm truncate max-w-[120px]">{msg.name}</span>
+                                    <span className="text-xs text-gray-400 truncate max-w-[120px] ml-2">{msg.email}</span>
+                                </div>
+                                <span className="font-bold text-white text-sm truncate">{msg.subject}</span>
+                                <span className="text-xs text-gray-400 mb-1">{msg.createdAt}</span>
+                                <span className="text-gray-300 text-xs line-clamp-2">{msg.content}</span>
+                            </div>
+                        ))
                     )}
                 </div>
             </div>

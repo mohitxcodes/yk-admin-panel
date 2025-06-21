@@ -4,25 +4,28 @@ import { useState } from 'react';
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from "../../firebase";
 
-
-
 function LoginPage() {
     const [formData, setFormData] = useState({
         email: '',
         password: '',
     });
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log('Login attempt:', formData);
-
+        setLoading(true);
+        setError(null);
         try {
             await signInWithEmailAndPassword(auth, formData.email, formData.password);
+            // Optionally redirect or show success
             console.log("Login Successfully")
         } catch {
+            setError("Something went wrong. Please check your credentials.");
             console.log("Something went wronge");
+        } finally {
+            setLoading(false);
         }
-
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -105,6 +108,7 @@ function LoginPage() {
                                         className="w-full pl-10 pr-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl focus:border-gray-600 focus:ring-2 focus:ring-gray-600/20 transition-all placeholder:text-gray-500"
                                         placeholder="Enter your email"
                                         required
+                                        disabled={loading}
                                     />
                                 </div>
                             </div>
@@ -124,23 +128,31 @@ function LoginPage() {
                                         className="w-full pl-10 pr-4 py-3 bg-gray-800/50 border border-gray-700 rounded-xl focus:border-gray-600 focus:ring-2 focus:ring-gray-600/20 transition-all placeholder:text-gray-500"
                                         placeholder="Enter your password"
                                         required
+                                        disabled={loading}
                                     />
                                 </div>
                             </div>
 
+                            {/* Error Message */}
+                            {error && <div className="text-red-500 text-sm text-center">{error}</div>}
+
                             {/* Login Button */}
                             <motion.button
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
+                                whileHover={{ scale: loading ? 1 : 1.02 }}
+                                whileTap={{ scale: loading ? 1 : 0.98 }}
                                 type="submit"
-                                className="w-full py-3 px-4 bg-white text-black rounded-xl hover:bg-gray-100 transition-colors font-medium"
+                                className="w-full py-3 px-4 bg-white text-black rounded-xl hover:bg-gray-100 transition-colors font-medium flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+                                disabled={loading}
                             >
-                                Sign In
+                                {loading && (
+                                    <svg className="animate-spin h-5 w-5 text-black" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+                                    </svg>
+                                )}
+                                <span>{loading ? 'Signing In...' : 'Sign In'}</span>
                             </motion.button>
-
                         </form>
-
-
                     </motion.div>
                 </div>
             </div>

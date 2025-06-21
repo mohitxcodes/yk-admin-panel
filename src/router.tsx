@@ -9,6 +9,7 @@ import CreateBlogPage from './pages/blogs/CreateBlogPage';
 import StudyMaterialPage from './pages/studymaterial/StudyMaterialPage';
 import HighlightsPage from './pages/highlights/HIghlightsPage';
 import CreateHighlightsPage from './pages/highlights/CreateHighlightsPage';
+import MessagePage from './pages/message/MessagePage';
 
 export const router = createBrowserRouter([
     {
@@ -35,6 +36,7 @@ export const router = createBrowserRouter([
                     { path: 'blogs/create', element: <CreateBlogPage /> },
                     { path: 'study-materials', element: <StudyMaterialPage /> },
                     { path: 'highlights', element: <HighlightsPage /> },
+                    { path: 'messages', element: <MessagePage /> },
                     { path: 'highlights/create', element: <CreateHighlightsPage /> },
                 ]
             }
