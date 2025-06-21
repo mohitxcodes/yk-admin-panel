@@ -4,6 +4,7 @@ import { FaImage, FaHashtag, FaTrash, FaSpinner } from 'react-icons/fa';
 import { db } from "../../firebase";
 import { addDoc, collection, Timestamp } from "firebase/firestore";
 import { uploadToImage } from "../../apis/uploadToImage";
+import { toast, Toaster } from 'react-hot-toast';
 
 const categories = ["workshop", "event", "research", "travel"];
 
@@ -38,13 +39,12 @@ function CreateHighlightsPage() {
                 imageUrl,
                 createdAt: Timestamp.now(),
             };
-            console.log(highlightData);
             await addDoc(collection(db, "highlights"), highlightData);
-            alert("✅ Highlight added successfully!");
+            toast.success("✅ Highlight added successfully!");
             navigate('/highlights');
         } catch (error) {
             console.error("❌ Error adding highlight:", error);
-            alert("Something went wrong while adding the highlight.");
+            toast.error("Something went wrong while adding the highlight.");
         } finally {
             setUploading(false);
         }
@@ -77,6 +77,7 @@ function CreateHighlightsPage() {
 
     return (
         <div className="min-h-screen w-full px-4 py-4">
+            <Toaster position="top-right" />
             <div className="max-w-5xl mx-auto">
                 <h1 className="text-2xl sm:text-3xl font-extrabold text-white mb-8 tracking-tight text-left">Create Highlight</h1>
                 <form onSubmit={handleSubmit} className="space-y-5">
@@ -205,11 +206,11 @@ function CreateHighlightsPage() {
                         </button>
                         <button
                             type="submit"
-                            className="px-6 py-2 bg-white text-black rounded-lg shadow hover:bg-gray-200 transition-colors font-semibold text-base flex items-center gap-2"
+                            className="px-6 py-2 bg-white text-black rounded-lg shadow hover:bg-gray-200 transition-colors font-semibold text-base flex items-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer hover:scale-105"
                             disabled={uploading}
                         >
                             {uploading && <FaSpinner className="animate-spin" />}
-                            Publish Highlight
+                            {uploading ? 'Publishing...' : 'Publish Highlight'}
                         </button>
                     </div>
                 </form>

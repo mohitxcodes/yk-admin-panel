@@ -4,29 +4,46 @@ import { FaRegFileAlt, FaRegCalendarAlt, FaPlus, FaTrash } from 'react-icons/fa'
 import useBlogs from "../../hooks/useFetchBlogs"
 import { doc, deleteDoc } from "firebase/firestore";
 import { db } from "../../firebase";
+import { useState } from 'react';
+import ConfirmModal from '../../components/ConfirmModal';
+import { toast } from 'react-hot-toast';
 
 function BlogPage() {
     const navigate = useNavigate();
-    const { blogs, loading } = useBlogs();
+    const { blogs } = useBlogs();
+    const [deleteId, setDeleteId] = useState<string | null>(null);
+    const [modalOpen, setModalOpen] = useState(false);
 
-    const handleDelete = async (id: string) => {
-        if (!window.confirm("Are you sure you want to delete this blog?")) return;
+    const handleDeleteClick = (id: string) => {
+        setDeleteId(id);
+        setModalOpen(true);
+    };
+
+    const handleConfirmDelete = async () => {
+        if (!deleteId) return;
         try {
-            await deleteDoc(doc(db, "blogs", id));
-            alert("Blog deleted successfully!");
-            // Optionally, you may want to refresh the blogs list here if not auto-updating
+            await deleteDoc(doc(db, "blogs", deleteId));
+            toast.success("Blog deleted successfully!");
         } catch (error) {
             console.error("Error deleting blog:", error);
-            alert("Failed to delete blog.");
+            toast.error("Failed to delete blog.");
+        } finally {
+            setModalOpen(false);
+            setDeleteId(null);
         }
+    };
+
+    const handleCancelDelete = () => {
+        setModalOpen(false);
+        setDeleteId(null);
     };
 
     return (
         <div className="relative min-h-screen">
-            <div className="relative z-10 max-w-7xl mx-auto px-4 pb-32">
+            <div className="relative z-10 max-w-7xl mx-auto px-2 sm:px-4 pb-32">
                 {/* Header Row */}
-                <div className="flex items-center justify-between mt-10 mb-6">
-                    <h1 className="text-4xl font-extrabold text-white tracking-tight drop-shadow-lg">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-8 sm:mt-10 mb-4 sm:mb-6 gap-4">
+                    <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight drop-shadow-lg">
                         Blogs
                     </h1>
                     <motion.button
@@ -54,19 +71,18 @@ function BlogPage() {
                             <motion.div
                                 key={blog.id}
                                 whileHover={{ scale: 1.01, borderColor: '#fff', boxShadow: '0 8px 32px 0 rgba(255,255,255,0.08)' }}
-                                className="border border-white/10 rounded-xl shadow-lg overflow-hidden flex flex-row items-center transition-all duration-200 group hover:shadow-2xl hover:-translate-y-0.5 hover:border-white/30 bg-transparent backdrop-blur-sm relative min-h-[72px]"
+                                className="border border-white/10 rounded-xl shadow-lg overflow-hidden flex flex-col sm:flex-row items-start sm:items-center transition-all duration-200 group hover:shadow-2xl hover:-translate-y-0.5 hover:border-white/30 bg-transparent backdrop-blur-sm relative min-h-[72px]"
                             >
                                 {/* Blog Image */}
                                 <img
                                     src={blog.imageUrl}
                                     alt={blog.title}
-                                    className="w-16 h-16 object-cover rounded-l-xl hidden sm:block"
+                                    className="w-full sm:w-16 h-40 sm:h-16 object-cover rounded-t-xl sm:rounded-t-none sm:rounded-l-xl hidden sm:block"
                                 />
                                 {/* Blog Content */}
                                 <div className="px-4 py-2 flex flex-col flex-1 min-w-0 justify-center">
-
                                     <h3 className="text-base font-bold text-white mb-0.5 truncate">{blog.title}</h3>
-                                    <p className="text-gray-300 text-xs mb-1 line-clamp-2 pr-28">{blog.subtitle}</p>
+                                    <p className="text-gray-300 text-xs mb-1 line-clamp-2 pr-0 sm:pr-28">{blog.subtitle}</p>
                                     <div className="flex justify-between items-center">
                                         <div className="flex gap-2">
                                             {blog.hashtags.map(tag => (
@@ -80,7 +96,7 @@ function BlogPage() {
                                 </div>
                                 {/* Delete Button */}
                                 <button
-                                    onClick={() => handleDelete(blog.id)}
+                                    onClick={() => handleDeleteClick(blog.id)}
                                     className="flex items-center gap-1 absolute top-2 right-2 z-10 px-2 py-1 rounded text-xs cursor-pointer font-semibold text-red-500 bg-white/10 hover:bg-red-100 hover:text-red-700 transition-all"
                                     title="Delete blog"
                                 >
@@ -92,6 +108,15 @@ function BlogPage() {
                     </div>
                 )}
             </div>
+            <ConfirmModal
+                open={modalOpen}
+                onConfirm={handleConfirmDelete}
+                onCancel={handleCancelDelete}
+                title="Delete Blog"
+                description="Are you sure you want to delete this blog? This action cannot be undone."
+                confirmText="Delete"
+                cancelText="Cancel"
+            />
         </div>
     );
 }

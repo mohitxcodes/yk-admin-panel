@@ -45,14 +45,14 @@ function DashboardPage() {
     const recentMessages = messages.slice(0, 2);
 
     return (
-        <div className="relative min-h-screen px-4 max-w-7xl mx-auto pb-32">
+        <div className="relative min-h-screen px-2 sm:px-4 max-w-7xl mx-auto pb-32">
             {/* Header */}
-            <div className="flex items-center justify-between mt-10 mb-8">
-                <h1 className="text-4xl font-extrabold text-white tracking-tight drop-shadow-lg">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-8 sm:mt-10 mb-6 sm:mb-8 gap-4">
+                <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight drop-shadow-lg">
                     Dashboard
                 </h1>
                 {/* Quick Actions */}
-                <div className="flex gap-3">
+                <div className="flex flex-wrap gap-2 sm:gap-3">
                     <motion.button
                         whileHover={{ scale: 1.07 }}
                         whileTap={{ scale: 0.97 }}
@@ -80,18 +80,18 @@ function DashboardPage() {
                 </div>
             </div>
 
-            {/* Stat Row - single row */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 mb-10">
+            {/* Stat Row - responsive */}
+            <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-8 sm:mb-10">
                 {stats.map((stat) => (
                     <div
                         key={stat.label}
-                        className="flex items-center gap-4 border border-white/10 rounded-xl px-5 py-6 bg-black/30 hover:border-white/30 transition-all min-h-[80px] backdrop-blur-sm shadow-lg"
+                        className="flex items-center gap-4 border border-white/10 rounded-xl px-4 sm:px-5 py-5 sm:py-6 bg-black/30 hover:border-white/30 transition-all min-h-[80px] backdrop-blur-sm shadow-lg"
                     >
                         <div className="bg-gray-900/60 rounded-xl p-2 border border-gray-800">
                             {stat.icon}
                         </div>
                         <div>
-                            <div className="text-2xl font-bold text-white">{stat.value}</div>
+                            <div className="text-xl sm:text-2xl font-bold text-white">{stat.value}</div>
                             <div className="text-xs text-gray-400 font-medium uppercase tracking-wide">{stat.label}</div>
                         </div>
                     </div>
@@ -99,10 +99,10 @@ function DashboardPage() {
             </div>
 
             {/* Recent Activity - stacked vertically */}
-            <div className="flex flex-col gap-8">
+            <div className="flex flex-col gap-6 sm:gap-8">
                 {/* Recent Blog */}
                 <div>
-                    <div className="flex items-center justify-between mb-2">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-2 gap-2">
                         <h2 className="text-lg font-bold text-white">Recent Blog</h2>
                         <button onClick={() => navigate('/blogs')} className="text-xs text-gray-400 hover:text-white flex items-center gap-1 font-medium">
                             View All <FaArrowRight className="w-3 h-3" />
@@ -124,7 +124,7 @@ function DashboardPage() {
                 </div>
                 {/* Recent Highlight */}
                 <div>
-                    <div className="flex items-center justify-between mb-2">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-2 gap-2">
                         <h2 className="text-lg font-bold text-white">Recent Highlight</h2>
                         <button onClick={() => navigate('/highlights')} className="text-xs text-gray-400 hover:text-white flex items-center gap-1 font-medium">
                             View All <FaArrowRight className="w-3 h-3" />
@@ -146,7 +146,7 @@ function DashboardPage() {
                 </div>
                 {/* Latest Messages */}
                 <div>
-                    <div className="flex items-center justify-between mb-2">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-2 gap-2">
                         <h2 className="text-lg font-bold text-white">Latest Messages</h2>
                         <button onClick={() => navigate('/messages')} className="text-xs text-gray-400 hover:text-white flex items-center gap-1 font-medium">
                             View All <FaArrowRight className="w-3 h-3" />
