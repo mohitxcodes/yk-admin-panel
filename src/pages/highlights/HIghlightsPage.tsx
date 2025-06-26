@@ -8,7 +8,7 @@ import { toast } from 'react-hot-toast';
 import ConfirmModal from '../../components/ConfirmModal';
 
 function HighlightsPage() {
-    const { highlights, loading } = useHighlights();
+    const { highlights } = useHighlights();
     const [deleteId, setDeleteId] = useState<string | null>(null);
     const [modalOpen, setModalOpen] = useState(false);
 
