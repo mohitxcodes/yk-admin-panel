@@ -8,7 +8,7 @@ import { toast } from 'react-hot-toast';
 import ConfirmModal from '../../components/ConfirmModal';
 
 function HighlightsPage() {
-    const { highlights } = useHighlights();
+    const { highlights, loading } = useHighlights();
     const [deleteId, setDeleteId] = useState<string | null>(null);
     const [modalOpen, setModalOpen] = useState(false);
 
@@ -57,7 +57,12 @@ function HighlightsPage() {
                 </div>
 
                 {/* Highlights List */}
-                {highlights.length === 0 ? (
+                {loading ? (
+                    <div className="flex flex-col items-center justify-center py-24 text-gray-500">
+                        <span className="animate-spin mb-4"><FaRegFileAlt className="w-10 h-10 opacity-30" /></span>
+                        <p className="text-lg font-semibold mb-2">Loading highlights...</p>
+                    </div>
+                ) : highlights.length === 0 ? (
                     <div className="flex flex-col items-center justify-center py-24 text-gray-500">
                         <FaRegFileAlt className="w-16 h-16 mb-4 opacity-30" />
                         <p className="text-lg font-semibold mb-2">No highlights found</p>
